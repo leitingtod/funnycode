@@ -1,4 +1,5 @@
-    public static String getLongestCommonPrefix(String[] strs) {
+public class Utils {
+  public static String getLongestCommonPrefix(String[] strs) {
     if (strs.length == 0) {
       return "";
     }
@@ -202,3 +203,69 @@
     //    System.out.println("DefName = " + s.substring(start, end));
     return s.substring(start, end).trim();
   }
+
+  public static String parseVersion(String s) {
+    int begin = s.indexOf("[");
+    int end = s.indexOf("]");
+    String ver;
+    if (begin > -1 && end > -1) {
+      ver = s.substring(begin + 1, end).trim();
+      try {
+        new Semver(ver);
+        return ver;
+      } catch (Exception e) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  public static boolean isNumeric(String str) {
+    if (str == null || str.isEmpty()) {
+      return false;
+    }
+
+    Pattern pattern = Pattern.compile("[0-9]*");
+
+    Matcher isNum = pattern.matcher(str);
+    return isNum.matches();
+  }
+    
+  private void readFile(String filename) {
+    try {
+      File file = Paths.get(filename).toFile();
+      BufferedReader bufReader =
+          new BufferedReader(
+              new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)); // 数据流读取文件
+
+      CharArrayWriter tempStream = new CharArrayWriter();
+
+      String s = bufReader.readLine();
+      while (s != null) {
+        if (s.contains("$ref: ")) {
+          log.debug("{}", s);
+          if (s.trim().contains("../")) {
+            tempStream.write(replace(s));
+            tempStream.append(System.getProperty("line.separator"));
+          } else {
+            tempStream.write(s);
+            tempStream.append(System.getProperty("line.separator"));
+          }
+        } else {
+          tempStream.write(s);
+          tempStream.append(System.getProperty("line.separator"));
+        }
+        s = bufReader.readLine();
+      }
+
+      // 关闭 输入流
+      bufReader.close();
+      // 将内存中的流 写入 文件
+      FileWriter out = new FileWriter(file);
+      tempStream.writeTo(out);
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+}
