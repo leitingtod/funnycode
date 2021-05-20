@@ -268,4 +268,12 @@ public class Utils {
       e.printStackTrace();
     }
   }
+private Config() {
+    Yaml yaml = new Yaml(new Constructor(Configuration.class));
+
+    InputStreamReader is =
+        new InputStreamReader(
+            App.class.getResourceAsStream("/application.yaml"), StandardCharsets.UTF_8);
+    config = yaml.load(is);
+  }
 }
